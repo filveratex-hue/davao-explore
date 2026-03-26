@@ -14,7 +14,7 @@ function RoutingMachine({ waypoints, userPos, isFollowing }: any) {
     if (!map || waypoints.length < 1 || !userPos) return;
 
     // Initialize the Routing Control
-    const routingControl = L.Routing.control({
+    const routingControl = (L as any).Routing.control({
       waypoints: [
         L.latLng(userPos[0], userPos[1]), // Start at User
         ...waypoints.map((w: any) => L.latLng(w.latitude, w.longitude)) // Then the spots
