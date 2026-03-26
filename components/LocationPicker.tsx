@@ -1,5 +1,4 @@
 'use client';
-import ReviewsSection from '../../../components/ReviewsSection';
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';

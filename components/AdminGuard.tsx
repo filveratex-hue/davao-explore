@@ -42,7 +42,20 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
       }
     };
 
+    // Run the initial check
     checkAccess();
+
+    // --- REAL-TIME BOUNCER FIX ---
+    // 4. Listen for auth changes (like clicking Sign Out)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setAuthorized(false);
+        router.push('/login');
+      }
+    });
+
+    // Cleanup the listener when the component unmounts
+    return () => subscription.unsubscribe();
   }, [router]);
 
   // Show a clean loading state while checking the database

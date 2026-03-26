@@ -1,8 +1,8 @@
-'use client'; // This tells Next.js this code runs in the browser!
-import ReviewsSection from '../../../components/ReviewsSection';
+'use client';
+
 import { useState, useEffect } from 'react';
 
-// The "Haversine" formula: A standard math formula to calculate distance between two coordinates on a sphere (Earth)
+// Math logic for the Haversine formula
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371; // Radius of the earth in km
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -12,47 +12,69 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
     Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
     Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c; // Distance in km
+  return R * c; 
 }
 
 export default function DistanceBadge({ placeLat, placeLng }: { placeLat: number | null, placeLng: number | null }) {
   const [distance, setDistance] = useState<number | null>(null);
-  const [status, setStatus] = useState<string>('📍 Locating...');
+  const [status, setStatus] = useState<'locating' | 'denied' | 'unsupported' | 'ready'>('locating');
 
   useEffect(() => {
-    // If the place doesn't have coordinates in the database, stop here.
     if (!placeLat || !placeLng) {
-      setStatus('');
+      setStatus('unsupported');
       return;
     }
 
-    // Ask the browser for the user's location
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
-          const calculatedDist = calculateDistance(userLat, userLng, placeLat, placeLng);
-          
+          const calculatedDist = calculateDistance(
+            position.coords.latitude,
+            position.coords.longitude,
+            placeLat,
+            placeLng
+          );
           setDistance(calculatedDist);
-          setStatus(''); // Clear the locating text
+          setStatus('ready');
         },
         (error) => {
           console.error("Location error:", error);
-          setStatus('📍 Location access denied');
-        }
+          setStatus('denied');
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     } else {
-      setStatus('📍 Geolocation not supported');
+      setStatus('unsupported');
     }
   }, [placeLat, placeLng]);
 
-  if (status) return <span className="text-xs text-gray-400 mt-2 block">{status}</span>;
-  if (distance === null) return null;
+  // --- RENDERING ---
 
+  // While finding the user
+  if (status === 'locating') {
+    return (
+      <div className="inline-flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 animate-pulse">
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">📍 Syncing GPS...</span>
+      </div>
+    );
+  }
+
+  // If the user said "No" to location
+  if (status === 'denied' || status === 'unsupported') {
+    return (
+      <div className="inline-flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+        <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">📍 Distance Hidden</span>
+      </div>
+    );
+  }
+
+  // Success state
   return (
-    <div className="mt-3 inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-emerald-100">
-      📍 {distance.toFixed(1)} km away from you
+    <div className="inline-flex items-center gap-2 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100 shadow-sm transition-all hover:scale-105">
+      <span className="text-blue-600">📍</span>
+      <span className="text-[10px] font-black text-blue-900 uppercase tracking-widest">
+        {distance !== null ? `${distance.toFixed(1)} KM AWAY` : 'LOCATED'}
+      </span>
     </div>
   );
 }

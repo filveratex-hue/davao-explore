@@ -3,10 +3,14 @@ import Link from 'next/link';
 import DistanceBadge from '../../../components/DistanceBadge';
 import ImageUpload from '../../../components/ImageUpload';
 import ReviewsSection from '../../../components/ReviewsSection';
+
+// 👇 FIX CACHING: Ensure the spot page always fetches the latest cover
+export const dynamic = 'force-dynamic';
+
 export default async function PlacePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   
-  // Fetch the place details
+  // Fetch the place details (This includes the cover_image_url)
   const { data: place, error } = await supabase
     .from('places')
     .select('*')
@@ -29,11 +33,11 @@ export default async function PlacePage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  // 1. We take the VERY FIRST image to be the big hero cover
-  const heroImage = images && images.length > 0 ? images[0].image_url : null;
+  // 1. HERO IMAGE FIX: Prioritize Admin cover, fallback to the first image in the array
+  const heroImage = place.cover_image_url || (images && images.length > 0 ? images[0].image_url : null);
   
-  // 2. We take EVERY OTHER image to put in the gallery at the bottom
-  const galleryImages = images && images.length > 1 ? images.slice(1) : [];
+  // 2. GALLERY FIX: Show all other images, but filter out the one currently used as the hero
+  const galleryImages = images ? images.filter(img => img.image_url !== heroImage) : [];
 
   return (
     <main className="min-h-screen bg-gray-50 pb-12">
@@ -120,13 +124,6 @@ export default async function PlacePage({ params }: { params: Promise<{ id: stri
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-        
-       {/* --- NEW COMMUNITY PHOTO GALLERY --- */}
-          {galleryImages.length > 0 && (
-            <div className="mt-12 pt-8 border-t border-gray-100">
-              {/* ... your existing gallery code ... */}
             </div>
           )}
 

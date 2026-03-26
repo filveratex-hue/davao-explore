@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Force Light Mode Variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,15 +13,56 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ❌ The @media (prefers-color-scheme: dark) block has been deleted */
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes bounce-in {
+  0% { transform: translate(-50%, 20px) scale(0.9); opacity: 0; }
+  50% { transform: translate(-50%, -5px) scale(1.02); opacity: 1; }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Make your horizontal scrollbars invisible but functional */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hide the messy Leaflet Routing text box (if you ever use it again) */
+.leaflet-routing-container {
+  display: none !important;
+}
+
+/* Ensure the map markers are always on top */
+.leaflet-marker-icon {
+  z-index: 1000 !important;
+}
+
+/* Custom Leaflet Popup Styling */
+.custom-popup .leaflet-popup-content-wrapper {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+.custom-popup .leaflet-popup-tip-container {
+  display: none; /* Hides the little triangle pointer */
+}
+.custom-popup .leaflet-popup-content {
+  margin: 0;
+  width: auto !important;
+}
+.custom-popup a.leaflet-popup-close-button {
+  display: none; /* Hides default 'X' button */
 }
