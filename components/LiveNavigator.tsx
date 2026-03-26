@@ -53,7 +53,7 @@ export default function LiveNavigator({ spots }: { spots: any[] }) {
         setUserPos([pos.coords.latitude, pos.coords.longitude]);
       },
       (err) => console.error(err),
-      { enableHighAccuracy: true, distanceFilter: 10 }
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
