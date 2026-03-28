@@ -3,9 +3,11 @@
 import { useTrip } from '../context/TripContext';
 import Link from 'next/link';
 
-export default function TripBottomBar({ placeId }: { placeId: number }) {
+export default function TripBottomBar({ placeId }: { placeId: any }) {
   const { tripIds, addToTrip, removeFromTrip } = useTrip();
-  const isAdded = tripIds.includes(placeId);
+
+  // 🚀 Safe Comparison: Converts both to strings so TypeScript and React are happy
+  const isAdded = tripIds.some((id: any) => String(id) === String(placeId));
 
   return (
     <div className="fixed bottom-0 left-0 w-full z-50 bg-white/80 backdrop-blur-3xl border-t border-white/50 pb-8 pt-4 px-4 md:px-6 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
