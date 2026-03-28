@@ -6,9 +6,10 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../utils/supabase';
 import AdminGuard from '../../components/AdminGuard';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; // <--- Right here
 import { useToast } from '../../context/ToastContext';
 import imageCompression from 'browser-image-compression'; 
-import dynamicImport from 'next/dynamic'; 
+import dynamicImport from 'next/dynamic';
 
 const LocationPicker = dynamicImport(() => import('../../components/LocationPicker'), {
   ssr: false,
