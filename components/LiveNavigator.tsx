@@ -13,7 +13,7 @@ function RoutingMachine({ waypoints, userPos, isFollowing }: any) {
   useEffect(() => {
     if (!map || !waypoints || waypoints.length < 1 || !userPos) return;
 
-    // 🚀 We use @ts-ignore here to force Vercel to ignore the 'Routing' type error
+    // 🚀 Bypass the Leaflet Routing type error for Vercel
     // @ts-ignore
     const routingControl = L.Routing.control({
       waypoints: [
@@ -57,11 +57,11 @@ export default function LiveNavigator({ spots }: { spots: any[] }) {
       (pos) => {
         setUserPos([pos.coords.latitude, pos.coords.longitude]);
       },
-      (err) => console.error("GPS Error:", err),
+      (err) => console.error("GPS Signal Lost:", err),
       { 
         enableHighAccuracy: true, 
-        timeout: 10000, // Increased timeout slightly for mountain signals
-        maximumAge: 0 
+        timeout: 15000, // 15s timeout for mountain signals
+        maximumAge: 0   // Always get fresh data
       }
     );
 
@@ -70,10 +70,10 @@ export default function LiveNavigator({ spots }: { spots: any[] }) {
 
   if (!userPos) {
     return (
-      <div className="h-[500px] w-full bg-gray-50 rounded-[2.5rem] flex items-center justify-center border-2 border-dashed border-gray-100">
+      <div className="h-[500px] w-full bg-gray-50 rounded-[3rem] flex items-center justify-center border-4 border-white shadow-inner">
         <div className="text-center">
-          <div className="w-12 h-12 bg-blue-600 rounded-full animate-ping mx-auto mb-6 opacity-20"></div>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] italic">Locking GPS Signal...</p>
+          <div className="w-10 h-10 bg-blue-500 rounded-full animate-ping mx-auto mb-6 opacity-30"></div>
+          <p className="text-[9px] font-[1000] text-gray-400 uppercase tracking-[0.4em] italic">Awaiting Satellite Lock...</p>
         </div>
       </div>
     );
@@ -88,7 +88,7 @@ export default function LiveNavigator({ spots }: { spots: any[] }) {
         <Marker 
           position={userPos} 
           icon={L.divIcon({ 
-            html: '<div class="relative flex items-center justify-center"><div class="absolute w-8 h-8 bg-blue-500 rounded-full animate-ping opacity-20"></div><div class="w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div></div>', 
+            html: '<div class="relative flex items-center justify-center"><div class="absolute w-10 h-10 bg-blue-400 rounded-full animate-ping opacity-20"></div><div class="w-4 h-4 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div></div>', 
             className: '' 
           })} 
         />
@@ -97,16 +97,16 @@ export default function LiveNavigator({ spots }: { spots: any[] }) {
       </MapContainer>
 
       {/* Control Overlay */}
-      <div className="absolute top-6 right-6 z-[1000] flex flex-col gap-2">
+      <div className="absolute top-6 right-6 z-[1000]">
         <button 
           onClick={() => setIsFollowing(!isFollowing)}
-          className={`px-6 py-3 rounded-2xl font-[1000] text-[9px] uppercase tracking-widest shadow-2xl transition-all active:scale-95 ${
+          className={`px-6 py-3 rounded-2xl font-[1000] text-[9px] uppercase tracking-widest shadow-2xl transition-all active:scale-95 border-b-4 ${
             isFollowing 
-              ? 'bg-blue-600 text-white border-b-4 border-blue-800' 
-              : 'bg-white text-gray-900 border-b-4 border-gray-200 hover:bg-gray-50'
+              ? 'bg-blue-600 text-white border-blue-800' 
+              : 'bg-white text-gray-900 border-gray-200 hover:bg-gray-50'
           }`}
         >
-          {isFollowing ? '● Auto-Following' : '🛰️ Manual View'}
+          {isFollowing ? '📍 Following Path' : '🛰️ Free Roam'}
         </button>
       </div>
     </div>
