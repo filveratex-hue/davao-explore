@@ -7,38 +7,16 @@ import { supabase } from '../../utils/supabase';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '../../context/ToastContext';
+import { Place, Profile, PlaceImage, PlaceImageWithJoin } from '../../types';
+import Image from 'next/image';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
-  const [mySpots, setMySpots] = useState<any[]>([]);
-  const [myPhotos, setMyPhotos] = useState<any[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [mySpots, setMySpots] = useState<Place[]>([]);
+  const [myPhotos, setMyPhotos] = useState<PlaceImageWithJoin[]>([]);
   const router = useRouter();
   const { showToast } = useToast();
-
-  useEffect(() => {
-    // --- THE BOUNCER: Fixes the "Ghosting" issue ---
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT') {
-        // 1. Wipe all private data from the screen immediately
-        setProfile(null);
-        setMySpots([]);
-        setMyPhotos([]);
-        setLoading(true); 
-        
-        // 2. Show goodbye message
-        showToast("Session terminated. See you soon!", "info");
-        
-        // 3. Force redirect to login
-        router.push('/login');
-        router.refresh();
-      }
-    });
-
-    fetchUserData();
-
-    return () => subscription.unsubscribe();
-  }, [router, showToast]);
 
   const fetchUserData = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -75,10 +53,37 @@ export default function ProfilePage() {
       .eq('user_id', session.user.id)
       .order('created_at', { ascending: false });
     
-    if (photosData) setMyPhotos(photosData);
+    if (photosData) setMyPhotos(photosData as PlaceImageWithJoin[]); 
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    // --- THE BOUNCER: Fixes the "Ghosting" issue ---
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        // 1. Wipe all private data from the screen immediately
+        setProfile(null);
+        setMySpots([]);
+        setMyPhotos([]);
+        setLoading(true); 
+        
+        // 2. Show goodbye message
+        showToast("Session terminated. See you soon!", "info");
+        
+        // 3. Force redirect to login
+        router.push('/login');
+        router.refresh();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [router, showToast]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchUserData();
+  }, []);
 
   // --- GAMIFICATION LOGIC ---
   const getRank = (pts: number) => {
@@ -210,9 +215,9 @@ export default function ProfilePage() {
                     <div className="bg-white p-5 rounded-[2rem] border border-gray-100 flex justify-between items-center shadow-sm group-hover:border-blue-200 group-hover:shadow-md transition-all active:scale-[0.98]">
                       <div>
                         <h3 className="font-[1000] text-gray-900 uppercase italic tracking-tight group-hover:text-blue-600 transition-colors">{spot.name}</h3>
-                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Found {new Date(spot.created_at).toLocaleDateString()}</p>
+                        <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">Found {spot.created_at ? new Date(spot.created_at).toLocaleDateString() : 'Recently'}</p>
                       </div>
-                      {getStatusBadge(spot.status)}
+                      {getStatusBadge(spot.status || 'pending')}
                     </div>
                   </Link>
                 ))}
@@ -232,9 +237,8 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 gap-4">
                 {myPhotos.map((img) => (
                   <div key={img.id} className="group relative aspect-square bg-gray-100 rounded-[2rem] overflow-hidden shadow-sm border border-gray-100">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.image_url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Contribution" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <Image src={img.image_url} fill className="object-cover group-hover:scale-110 transition-transform duration-700" alt="Contribution" sizes="50vw" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 flex flex-col justify-end opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                       <p className="text-[9px] text-white font-black uppercase tracking-widest truncate mb-2">{img.places?.name}</p>
                       <div className="w-fit">{getStatusBadge(img.status)}</div>
                     </div>

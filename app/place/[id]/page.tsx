@@ -1,16 +1,37 @@
 import { supabase } from '../../../utils/supabase';
-import Link from 'next/link';
+import { Place } from '../../../types';
 import DistanceBadge from '../../../components/DistanceBadge';
 import ImageUpload from '../../../components/ImageUpload';
 import ReviewsSection from '../../../components/ReviewsSection';
-import TripBottomBar from '../../../components/TripBottomBar'; // 👈 Your new component
+import TripBottomBar from '../../../components/TripBottomBar';
+import PlaceHero from '../../../components/PlaceHero';
+import PlaceDetailsGrid from '../../../components/PlaceDetailsGrid';
+import PlaceGallery from '../../../components/PlaceGallery';
+import QuickShareButton from '../../../components/QuickShareButton';
+import Link from 'next/link';
+import { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const resolvedParams = await params;
+  const { data: place } = await supabase.from('places').select('*').eq('id', resolvedParams.id).single();
+  
+  if (!place) return { title: 'Not Found' };
+  
+  return {
+    title: `${place.name} | Catigan Explore`,
+    description: place.description?.slice(0, 150) + '...',
+    openGraph: {
+      images: place.cover_image_url ? [place.cover_image_url] : [],
+    }
+  };
+}
 
 export default async function PlacePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   
-  const { data: place, error } = await supabase
+  const { data: placeData, error } = await supabase
     .from('places')
     .select('*')
     .eq('id', resolvedParams.id)
@@ -22,7 +43,7 @@ export default async function PlacePage({ params }: { params: Promise<{ id: stri
     .eq('place_id', resolvedParams.id)
     .eq('status', 'approved');
 
-  if (error || !place) {
+  if (error || !placeData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 flex-col gap-6">
         <h1 className="text-2xl font-[1000] uppercase italic text-gray-300 tracking-tighter">Spot not found</h1>
@@ -31,66 +52,65 @@ export default async function PlacePage({ params }: { params: Promise<{ id: stri
     );
   }
 
+  const place: Place = placeData;
   const heroImage = place.cover_image_url || (images && images.length > 0 ? images[0].image_url : null);
   const galleryImages = images ? images.filter(img => img.image_url !== heroImage) : [];
 
   return (
     <main className="min-h-screen bg-gray-900 text-gray-900 relative">
       
-      {/* 📸 HERO IMAGE (Fixed Background) */}
-      <div className="fixed top-0 left-0 w-full h-[55vh] z-0">
-        {heroImage ? (
-          <img src={heroImage} alt={place.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-gray-800 to-black" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/40" />
-      </div>
+      <PlaceHero heroImage={heroImage} placeName={place.name} />
 
-      {/* 🛡️ FLOATING TOP NAV */}
-      <div className="fixed top-6 left-0 w-full px-6 z-50 flex justify-between items-center max-w-2xl mx-auto right-0">
-        <Link href="/" className="w-12 h-12 bg-white/20 backdrop-blur-xl rounded-full flex items-center justify-center text-white border border-white/30 shadow-lg active:scale-90 transition-transform">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
-        </Link>
-      </div>
-
-      {/* 📄 CONTENT SHEET (Slides over the image) */}
-      <div className="relative z-10 mt-[45vh] bg-white rounded-t-[3rem] min-h-[60vh] pb-40 shadow-[0_-20px_50px_rgba(0,0,0,0.2)]">
-        <div className="max-w-2xl mx-auto p-6 md:p-8 pt-8">
+      {/* Content card — closer to top on mobile */}
+      <div className="relative z-10 mt-[35vh] md:mt-[45vh] bg-white rounded-t-[2rem] md:rounded-t-[3rem] min-h-[60vh] pb-32 md:pb-40 shadow-[0_-20px_50px_rgba(0,0,0,0.2)]">
+        <div className="max-w-2xl mx-auto p-5 md:p-8 pt-6 md:pt-8">
           
-          {/* Pull Tab Indicator */}
-          <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-8" />
+          {/* Drag handle indicator */}
+          <div className="w-10 md:w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-6 md:mb-8" />
 
-          {/* Title Header */}
-          <div className="mb-8">
+          {/* Title section */}
+          <div className="mb-6 md:mb-8">
             {place.category && (
-              <span className="text-[9px] font-black text-blue-600 uppercase tracking-[0.4em] block mb-3">{place.category}</span>
+              <span className="text-[9px] font-black text-blue-600 uppercase tracking-[0.4em] block mb-2 md:mb-3">{place.category}</span>
             )}
-            <h1 className="text-4xl md:text-5xl font-[1000] uppercase italic tracking-tighter leading-[0.9] mb-4">{place.name}</h1>
-            <DistanceBadge placeLat={place.latitude} placeLng={place.longitude} />
+            <h1 className="text-3xl md:text-5xl font-[1000] uppercase italic tracking-tighter leading-[0.9] mb-3 md:mb-4">{place.name}</h1>
+            <DistanceBadge placeLat={place.latitude ?? null} placeLng={place.longitude ?? null} />
           </div>
 
-          {/* Upland Info Grid */}
-          <div className="grid grid-cols-2 gap-3 mb-10">
-            <div className="bg-orange-50 rounded-2xl p-4 md:p-5 border border-orange-100">
-              <span className="text-[8px] md:text-[9px] font-black text-orange-400 uppercase tracking-widest block mb-1">Road Condition</span>
-              <span className="text-xs md:text-sm font-[1000] text-orange-900 tracking-tight flex items-center gap-2">🚙 {place.road_condition || "Any Vehicle"}</span>
-            </div>
-            <div className="bg-blue-50 rounded-2xl p-4 md:p-5 border border-blue-100">
-              <span className="text-[8px] md:text-[9px] font-black text-blue-400 uppercase tracking-widest block mb-1">Operating Hours</span>
-              <span className="text-xs md:text-sm font-[1000] text-blue-900 tracking-tight flex items-center gap-2">⏰ {place.is_24_hours ? '24 Hours' : `${place.open_time?.slice(0,5) || '?'} - ${place.close_time?.slice(0,5) || '?'}`}</span>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="mb-10">
-            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">About this spot</h3>
-            <p className="text-gray-600 leading-relaxed font-medium">{place.description}</p>
-          </div>
-
-          {/* Get Directions (Google Maps fallback) */}
+          {/* Quick Action Row — Mobile only */}
           {place.latitude && place.longitude && (
-            <div className="mb-10">
+            <div className="flex gap-2 mb-6 md:hidden">
+              <a 
+                href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white font-bold text-[10px] uppercase tracking-widest py-3.5 rounded-xl active:scale-95 transition-transform shadow-md"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Navigate
+              </a>
+              <QuickShareButton />
+            </div>
+          )}
+
+          <PlaceDetailsGrid 
+            roadCondition={place.road_condition} 
+            is24Hours={place.is_24_hours} 
+            openTime={place.open_time} 
+            closeTime={place.close_time} 
+          />
+
+          <div className="mb-8 md:mb-10">
+            <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-3 md:mb-4">About this spot</h3>
+            <p className="text-gray-600 leading-relaxed font-medium text-sm md:text-base">{place.description}</p>
+          </div>
+
+          {/* Desktop: Google Maps link */}
+          {place.latitude && place.longitude && (
+            <div className="mb-8 md:mb-10 hidden md:block">
               <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Location Data</h3>
               <a 
                 href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`} 
@@ -103,29 +123,16 @@ export default async function PlacePage({ params }: { params: Promise<{ id: stri
             </div>
           )}
 
-          <hr className="border-gray-100 mb-10" />
+          <hr className="border-gray-100 mb-8 md:mb-10" />
 
-          {/* Image Upload Component */}
-          <div className="mb-12">
+          <div className="mb-8 md:mb-12">
             <ImageUpload placeId={place.id} />
           </div>
 
-          {/* Community Photo Gallery */}
           {galleryImages.length > 0 && (
-            <div className="mb-12">
-              <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Community Photos</h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {galleryImages.map((img, index) => (
-                  <div key={index} className="aspect-square bg-gray-100 rounded-2xl overflow-hidden shadow-sm">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img.image_url} alt={`Photo ${index}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <PlaceGallery galleryImages={galleryImages} />
           )}
 
-          {/* Reviews Component */}
           <div>
             <ReviewsSection placeId={place.id} />
           </div>
@@ -133,8 +140,7 @@ export default async function PlacePage({ params }: { params: Promise<{ id: stri
         </div>
       </div>
 
-      {/* 🚗 CLIENT COMPONENT: STICKY BOTTOM ACTION BAR */}
-      <TripBottomBar placeId={place.id} />
+      <TripBottomBar place={place} />
 
     </main>
   );

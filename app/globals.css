@@ -4,6 +4,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --tab-bar-h: 5.5rem; /* Height of the mobile bottom tab bar */
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 @theme inline {
@@ -13,14 +15,19 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* ❌ The @media (prefers-color-scheme: dark) block has been deleted */
+html {
+  scroll-behavior: smooth;
+}
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
 
+/* ===== ANIMATIONS ===== */
 @keyframes bounce-in {
   0% { transform: translate(-50%, 20px) scale(0.9); opacity: 0; }
   50% { transform: translate(-50%, -5px) scale(1.02); opacity: 1; }
@@ -31,38 +38,106 @@ body {
   animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
-/* Make your horizontal scrollbars invisible but functional */
+@keyframes tab-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.animate-tab-pop {
+  animation: tab-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ===== SCROLL UTILITIES ===== */
+/* Make horizontal scrollbars invisible but functional */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  touch-action: pan-x;
 }
 
-/* Hide the messy Leaflet Routing text box (if you ever use it again) */
+/* Snap scroll for mobile card swipe */
+.snap-scroll-x {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-left: 1.5rem;
+}
+.snap-scroll-x::-webkit-scrollbar {
+  display: none;
+}
+.snap-scroll-x > * {
+  scroll-snap-align: start;
+}
+
+/* ===== MOBILE BOTTOM PADDING ===== */
+/* Adds breathing room above the tab bar so no content is hidden */
+.pb-tab-bar {
+  padding-bottom: calc(var(--tab-bar-h) + var(--safe-bottom) + 1rem);
+}
+
+/* ===== LEAFLET OVERRIDES ===== */
 .leaflet-routing-container {
   display: none !important;
 }
 
-/* Ensure the map markers are always on top */
 .leaflet-marker-icon {
   z-index: 1000 !important;
 }
 
-/* Custom Leaflet Popup Styling */
 .custom-popup .leaflet-popup-content-wrapper {
   background: transparent;
   box-shadow: none;
   padding: 0;
 }
 .custom-popup .leaflet-popup-tip-container {
-  display: none; /* Hides the little triangle pointer */
+  display: none;
 }
 .custom-popup .leaflet-popup-content {
   margin: 0;
   width: auto !important;
 }
 .custom-popup a.leaflet-popup-close-button {
-  display: none; /* Hides default 'X' button */
+  display: none;
+}
+
+/* ===== TOUCH DEVICE OPTIMIZATION ===== */
+/* Remove hover effects on touch-only devices to avoid "sticky hover" */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:scale-105:hover {
+    transform: none;
+  }
+  .hover\:shadow-xl:hover {
+    box-shadow: none;
+  }
+  /* Ensure inputs are 16px+ to prevent iOS auto-zoom */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+/* ===== IOS INPUT ZOOM PREVENTION ===== */
+@supports (-webkit-touch-callout: none) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea {
+    font-size: 16px;
+  }
 }

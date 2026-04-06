@@ -2,23 +2,23 @@
 
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { Place } from '../types';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
 import 'leaflet/dist/leaflet.css';
 
 // --- 🧭 NAVIGATION CONTROLLER ---
-function RoutingMachine({ waypoints, userPos, isFollowing }: any) {
+function RoutingMachine({ waypoints, userPos, isFollowing }: { waypoints: Place[]; userPos: [number, number]; isFollowing: boolean }) {
   const map = useMap();
 
   useEffect(() => {
     if (!map || !waypoints || waypoints.length < 1 || !userPos) return;
 
-    // 🚀 Bypass the Leaflet Routing type error for Vercel
-    // @ts-ignore
-    const routingControl = L.Routing.control({
+    // 🚀 Access Routing via any cast to bypass missing type defs
+    const routingControl = (L as any).Routing.control({
       waypoints: [
         L.latLng(userPos[0], userPos[1]), 
-        ...waypoints.map((w: any) => L.latLng(w.latitude, w.longitude))
+        ...waypoints.map((w: Place) => L.latLng(w.latitude || 0, w.longitude || 0))
       ],
       lineOptions: {
         styles: [{ color: '#3b82f6', weight: 5, opacity: 0.9 }], // Slightly thinner for mobile
@@ -46,7 +46,7 @@ function RoutingMachine({ waypoints, userPos, isFollowing }: any) {
   return null;
 }
 
-export default function LiveNavigator({ spots }: { spots: any[] }) {
+export default function LiveNavigator({ spots }: { spots: Place[] }) {
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const [isFollowing, setIsFollowing] = useState(true);
 

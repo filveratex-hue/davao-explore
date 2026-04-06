@@ -21,6 +21,7 @@ export default function DistanceBadge({ placeLat, placeLng }: { placeLat: number
 
   useEffect(() => {
     if (!placeLat || !placeLng) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('unsupported');
       return;
     }
@@ -34,16 +35,19 @@ export default function DistanceBadge({ placeLat, placeLng }: { placeLat: number
             placeLat,
             placeLng
           );
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setDistance(calculatedDist);
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setStatus('ready');
         },
         (error) => {
-          console.error("Location error:", error);
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setStatus('denied');
         },
         { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
       );
     } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus('unsupported');
     }
   }, [placeLat, placeLng]);

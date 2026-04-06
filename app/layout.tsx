@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar"; 
-import ItineraryTray from "../components/ItineraryTray"; // 👈 1. Import the Tray
+import ItineraryTray from "../components/ItineraryTray";
+import MobileTabBar from "../components/MobileTabBar";
 import { ToastProvider } from "../context/ToastContext"; 
 import { TripProvider } from "../context/TripContext"; 
 
@@ -16,9 +17,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#ffffff",
+};
+
 export const metadata: Metadata = {
   title: "Catigan Explore",
   description: "Discover the best spots in upland Davao.",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Explore",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
@@ -30,22 +48,24 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      suppressHydrationWarning /* 👈 FIX: Added here to stop HTML injection warnings */
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
     >
-      <body className="min-h-full flex flex-col" suppressHydrationWarning> {/* 👈 FIX: Added here too for safety */}
-        {/* The Alarm System (Notifications) */}
+      <body className="min-h-full flex flex-col">
         <ToastProvider>
-          {/* The GPS (Itinerary Logic) */}
           <TripProvider> 
             
             <Navbar /> 
             
-            <main className="flex-grow flex flex-col">
+            <main className="flex-grow flex flex-col pb-tab-bar md:pb-0">
               {children}
             </main>
 
-            {/* 🧭 The Floating Navigator */}
+            {/* 🧭 Floating Itinerary Tray */}
             <ItineraryTray /> 
+
+            {/* 📱 Mobile Bottom Tab Bar */}
+            <MobileTabBar />
 
           </TripProvider>
         </ToastProvider>

@@ -5,6 +5,8 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import Link from 'next/link';
 import { useState } from 'react';
+import { Place } from '../types';
+import Image from 'next/image';
 
 // --- CUSTOM MARKERS ---
 const customIcon = new L.Icon({
@@ -37,28 +39,26 @@ function FindMeButton({ setUserPos }: { setUserPos: (pos: [number, number]) => v
     <button
       onClick={handleClick}
       type="button"
-      className="absolute bottom-8 right-8 z-[1000] bg-black text-white p-4 rounded-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all border-2 border-white/20 group"
+      className="absolute bottom-28 left-4 md:bottom-8 md:right-8 md:left-auto z-[1000] bg-black text-white p-3.5 md:p-4 rounded-2xl shadow-2xl hover:scale-110 active:scale-95 transition-all border-2 border-white/20 group"
       title="Find my location"
     >
       <span className="group-hover:animate-ping absolute inset-0 rounded-2xl bg-white/20 pointer-events-none" />
-      <span className="relative">📍</span>
+      <span className="relative text-lg">📍</span>
     </button>
   );
 }
 
 // --- 🚀 AUTO-ZOOM LOGIC ---
-function MarkerLogic({ place }: { place: any }) {
+function MarkerLogic({ place }: { place: Place }) {
   const map = useMap();
 
   return (
     <Marker 
-      position={[place.latitude, place.longitude]} 
+      position={[place.latitude || 0, place.longitude || 0]} 
       icon={customIcon}
       eventHandlers={{
         click: () => {
-          // When clicked, smoothly fly to the marker and zoom in slightly
-          // We offset the latitude slightly so the popup doesn't get cut off at the top
-          map.flyTo([place.latitude + 0.005, place.longitude], 14, {
+          map.flyTo([(place.latitude || 0) + 0.005, place.longitude || 0], 14, {
             animate: true,
             duration: 1.2
           });
@@ -66,12 +66,10 @@ function MarkerLogic({ place }: { place: any }) {
       }}
     >
       <Popup className="custom-popup" closeButton={false}>
-        <div className="bg-white rounded-[2rem] shadow-2xl overflow-hidden w-64 border-4 border-white transform transition-all hover:scale-105">
-          {/* Cover Image Preview */}
-          <div className="h-24 w-full bg-gray-100 relative">
+        <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden w-56 md:w-64 border-4 border-white transform transition-all hover:scale-105">
+          <div className="h-20 md:h-24 w-full bg-gray-100 relative">
             {place.cover_image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={place.cover_image_url} alt={place.name} className="w-full h-full object-cover" />
+              <Image src={place.cover_image_url} alt={place.name} className="object-cover" fill sizes="256px" />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-2xl">⛰️</div>
             )}
@@ -81,13 +79,13 @@ function MarkerLogic({ place }: { place: any }) {
           </div>
           
           {/* Info Section */}
-          <div className="p-4 flex flex-col items-center text-center bg-white">
-            <h3 className="font-black text-lg uppercase italic text-gray-900 leading-tight mb-1 truncate w-full">{place.name}</h3>
-            <p className="text-[10px] text-gray-500 font-bold mb-4 line-clamp-1">{place.description}</p>
+          <div className="p-3 md:p-4 flex flex-col items-center text-center bg-white">
+            <h3 className="font-black text-base md:text-lg uppercase italic text-gray-900 leading-tight mb-1 truncate w-full">{place.name}</h3>
+            <p className="text-[9px] md:text-[10px] text-gray-500 font-bold mb-3 md:mb-4 line-clamp-1">{place.description}</p>
             
             <Link 
               href={`/place/${place.id}`}
-              className="w-full bg-blue-600 text-white text-[10px] font-black px-4 py-3 rounded-xl uppercase tracking-widest hover:bg-blue-500 active:scale-95 transition-all shadow-md"
+              className="w-full bg-blue-600 text-white text-[10px] font-black px-4 py-3 rounded-xl uppercase tracking-widest hover:bg-blue-500 active:scale-95 transition-all shadow-md text-center block"
             >
               Explore Spot →
             </Link>
@@ -98,12 +96,12 @@ function MarkerLogic({ place }: { place: any }) {
   );
 }
 
-export default function MainMap({ places }: { places: any[] }) {
+export default function MainMap({ places }: { places: Place[] }) {
   const [userPos, setUserPos] = useState<[number, number] | null>(null);
   const davaoCenter: [number, number] = [7.0707, 125.6128];
 
   return (
-    <div className="w-full h-[500px] rounded-[3rem] overflow-hidden border-8 border-white shadow-2xl relative z-0 mb-16">
+    <div className="w-full h-full relative z-0">
       <MapContainer 
         center={davaoCenter} 
         zoom={11} 
@@ -111,7 +109,7 @@ export default function MainMap({ places }: { places: any[] }) {
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
@@ -133,10 +131,10 @@ export default function MainMap({ places }: { places: any[] }) {
         <FindMeButton setUserPos={setUserPos} />
       </MapContainer>
       
-      {/* Floating Info Badge */}
-      <div className="absolute top-6 left-6 z-[1000] bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl shadow-xl border border-gray-100 hidden md:block">
-        <p className="text-[10px] font-black uppercase tracking-widest text-gray-900 flex items-center gap-3">
-          <span className="w-2.5 h-2.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+      {/* Floating Info Badge — visible on all screens now */}
+      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-[1000] bg-white/90 backdrop-blur-md px-4 md:px-5 py-2 md:py-3 rounded-xl md:rounded-2xl shadow-xl border border-gray-100">
+        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-900 flex items-center gap-2 md:gap-3">
+          <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
           {places.length} Active Spots
         </p>
       </div>

@@ -29,17 +29,16 @@ export default function ImageUpload({ placeId }: { placeId: string }) {
       if (spotCount !== null && spotCount >= 10) {
         alert("📸 This spot already has a full gallery of 10 photos! Try finding a new spot to document.");
         setLoading(false);
-        return; // Stops the upload completely
+        return; 
       }
 
       // --- GUARDRAIL 2: User Daily Limit Check (Max 3 per 24 hours) ---
-      // Get the exact time 24 hours ago
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
       const { count: userCount, error: userError } = await supabase
         .from('place_images')
         .select('*', { count: 'exact', head: true })
-        .eq('submitted_by', userId)
+        .eq('user_id', userId) 
         .gte('created_at', twentyFourHoursAgo);
 
       if (userError) throw userError;
@@ -47,40 +46,37 @@ export default function ImageUpload({ placeId }: { placeId: string }) {
       if (userCount !== null && userCount >= 3) {
         alert("🛑 You've reached your daily limit of 3 photo uploads! Thanks for contributing, come back tomorrow to upload more.");
         setLoading(false);
-        return; // Stops the upload completely
+        return; 
       }
 
       // --- IF BOTH CHECKS PASS, PROCEED WITH UPLOAD ---
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${placeId}/${fileName}`; 
+      const { compressAndUploadImage } = await import('../utils/uploadService');
+      const { publicUrl, error: uploadErr } = await compressAndUploadImage(file, 'spot-images', `${placeId}/`);
 
-      const { error: uploadError } = await supabase.storage
-        .from('spot-images')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('spot-images')
-        .getPublicUrl(filePath);
+      if (uploadErr || !publicUrl) throw new Error(uploadErr || "Upload failed");
 
       const { error: dbError } = await supabase
         .from('place_images')
         .insert([{
           place_id: placeId,
           image_url: publicUrl,
-          submitted_by: userId,
+          user_id: userId,
           status: 'pending' 
         }]);
 
       if (dbError) throw dbError;
 
-      alert('📸 Photo uploaded successfully! It will appear once approved by an admin.');
+      // --- AWARD POINTS ---
+      const { data: profile } = await supabase.from('profiles').select('points').eq('id', userId).single();
+      const currentPoints = profile?.points || 0;
+      await supabase.from('profiles').update({ points: currentPoints + 5 }).eq('id', userId);
+
+      alert('📸 Photo uploaded! +5 Points. It will appear in the gallery once approved.');
       setFile(null); 
       
-    } catch (error: any) {
-      console.error('Upload failed:', error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Upload failed:', err.message);
       alert('Failed to upload image. Please try again.');
     } finally {
       setLoading(false);

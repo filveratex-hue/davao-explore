@@ -11,7 +11,6 @@ export default function Navbar() {
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
-  const [isOpen, setIsOpen] = useState(false); // 👈 NEW: For mobile menu
   
   const router = useRouter();
   const pathname = usePathname();
@@ -71,7 +70,6 @@ export default function Navbar() {
     setUsername(null);
     setRole(null);
     setPendingCount(0);
-    setIsOpen(false);
     router.push('/login');
     router.refresh(); 
   };
@@ -79,21 +77,21 @@ export default function Navbar() {
   const isAdminPage = pathname?.startsWith('/admin');
 
   return (
-    <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-7xl">
+    <nav className={`fixed left-1/2 -translate-x-1/2 z-[100] w-[95%] max-w-7xl ${pathname === '/map' ? 'hidden md:block' : ''}`} style={{ top: 'max(1rem, env(safe-area-inset-top))' }}>
       {/* --- THE FLOATING BAR --- */}
-      <div className="bg-white/70 backdrop-blur-2xl border border-white/20 shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] rounded-[2rem] px-6 py-3 flex justify-between items-center transition-all duration-500">
+      <div className="bg-white/80 backdrop-blur-3xl border border-white/50 shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-2xl md:rounded-[2rem] px-4 md:px-5 py-2.5 md:py-3 flex justify-between items-center transition-all duration-500">
         
         {/* LOGO */}
-        <Link href="/" className="flex items-center gap-3 group" onClick={() => setIsOpen(false)}>
-          <div className="w-10 h-10 bg-black rounded-2xl flex items-center justify-center text-white font-[1000] italic text-lg transition-transform group-hover:rotate-12 shadow-lg">
+        <Link href="/" className="flex items-center gap-2.5 md:gap-3 group">
+          <div className="w-9 h-9 md:w-10 md:h-10 bg-black rounded-xl md:rounded-[0.9rem] flex items-center justify-center text-white font-extrabold text-base md:text-lg transition-transform group-hover:rotate-6 shadow-md border border-gray-800">
             D
           </div>
-          <span className="text-sm font-[1000] uppercase italic tracking-tighter text-gray-900 leading-none hidden sm:inline-block">
+          <span className="text-sm font-[900] uppercase tracking-widest text-gray-900 leading-none hidden sm:inline-block">
             DAVAO<span className="text-blue-600">Explore</span>
           </span>
         </Link>
 
-        {/* DESKTOP ACTIONS */}
+        {/* DESKTOP ACTIONS — Only visible on md+ */}
         <div className="hidden md:flex items-center gap-6">
           {user ? (
             <>
@@ -146,58 +144,28 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* MOBILE BURGER TOGGLE */}
-        <button 
-          onClick={() => setIsOpen(!isOpen)} 
-          className={`md:hidden w-12 h-12 flex flex-col items-center justify-center rounded-2xl transition-all relative ${isOpen ? 'bg-black text-white' : 'bg-gray-100 text-gray-900'}`}
-        >
-          {pendingCount > 0 && !isOpen && (
-            <span className="absolute -top-1 -right-1 bg-red-600 w-3 h-3 rounded-full border-2 border-white animate-ping" />
-          )}
-          <div className="flex flex-col gap-1">
-            <span className={`h-0.5 w-5 bg-current transition-all rounded-full ${isOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
-            <span className={`h-0.5 w-5 bg-current transition-all rounded-full ${isOpen ? 'opacity-0' : ''}`} />
-            <span className={`h-0.5 w-5 bg-current transition-all rounded-full ${isOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
-          </div>
-        </button>
-      </div>
-
-      {/* --- MOBILE DRAWER MENU --- */}
-      <div className={`md:hidden absolute top-full left-0 w-full mt-3 overflow-hidden transition-all duration-500 ease-out ${isOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'}`}>
-        <div className="bg-white/90 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] p-8 shadow-[0_30px_60px_rgba(0,0,0,0.2)] flex flex-col gap-4 items-center">
+        {/* MOBILE: Slim right-side content — username or login */}
+        <div className="flex md:hidden items-center gap-2">
           {user ? (
-            <>
-              <div className="text-center mb-4">
-                <p className="text-[9px] font-black text-gray-400 uppercase tracking-[0.3em]">Welcome Back</p>
-                <p className="text-xl font-[1000] italic uppercase text-gray-900 tracking-tighter">@{username}</p>
-              </div>
-              
-              {(role === 'admin' || role === 'IT') && (
-                <Link onClick={() => setIsOpen(false)} href="/admin" className="w-full text-center py-5 bg-purple-50 text-purple-700 rounded-2xl font-[1000] text-[11px] uppercase tracking-widest border border-purple-100 relative">
-                  Command Center
-                  {pendingCount > 0 && (
-                    <span className="ml-2 bg-red-600 text-white px-2 py-0.5 rounded-full text-[8px] animate-pulse">
-                      {pendingCount}
-                    </span>
-                  )}
+            <div className="flex items-center gap-2">
+              {(role === 'admin' || role === 'IT') && pendingCount > 0 && (
+                <Link href="/admin" className="relative w-9 h-9 bg-purple-50 rounded-xl flex items-center justify-center border border-purple-100 active:scale-90 transition-transform">
+                  <span className="text-sm">🛡️</span>
+                  <span className="absolute -top-1 -right-1 bg-red-600 w-4 h-4 text-[7px] font-black text-white rounded-full flex items-center justify-center border-2 border-white">
+                    {pendingCount}
+                  </span>
                 </Link>
               )}
-              
-              <Link onClick={() => setIsOpen(false)} href="/add-spot" className="w-full text-center py-5 bg-black text-white rounded-2xl font-[1000] text-[11px] uppercase tracking-widest shadow-xl">
-                Contribute Spot
-              </Link>
-
-              <Link onClick={() => setIsOpen(false)} href="/profile" className="w-full text-center py-4 text-gray-400 font-black text-[10px] uppercase tracking-widest">
-                My Profile
-              </Link>
-              
-              <button onClick={handleSignOut} className="w-full text-center py-4 text-red-500 font-black text-[10px] uppercase tracking-[0.3em] mt-2">
-                Sign Out
-              </button>
-            </>
+              <div className="w-9 h-9 bg-gray-900 rounded-xl flex items-center justify-center text-[10px] font-black text-white uppercase">
+                {(username || 'E').charAt(0)}
+              </div>
+            </div>
           ) : (
-            <Link onClick={() => setIsOpen(false)} href="/login" className="w-full text-center py-5 bg-black text-white rounded-2xl font-[1000] text-[11px] uppercase tracking-widest shadow-2xl">
-              Explorer Login
+            <Link 
+              href="/login" 
+              className="bg-black text-white px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest active:scale-95 transition-transform"
+            >
+              Login
             </Link>
           )}
         </div>

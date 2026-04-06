@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   {/* --- NEW SIGNUP LINK --- */}
       <p className="mt-8 text-sm text-gray-500">
-        Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
         <Link href="/signup" className="text-blue-600 font-bold hover:underline">
           Sign up
         </Link>
