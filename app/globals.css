@@ -143,22 +143,76 @@ body {
 }
 
 /* ===== CUSTOM MAP MARKERS ===== */
+@keyframes pulse-ring {
+  0% { transform: scale(0.33); opacity: 1; }
+  80%, 100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes pin-drop {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.custom-pin-container {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: pin-drop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.4));
+}
+
 .custom-pin {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   background: white;
-  border-radius: 50% 50% 50% 0;
-  border: 3px solid white;
-  width: 36px !important;
-  height: 36px !important;
-  transform: rotate(-45deg);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  border: 4px solid white;
+  width: 44px !important;
+  height: 44px !important;
+  position: relative;
+  z-index: 2;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* The "point" of the pin */
+.custom-pin::before {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 12px solid white;
+}
+
+.custom-pin::after {
+  content: "";
+  position: absolute;
+  top: -4px; left: -4px; bottom: -4px; right: -4px;
+  border: 2px solid #3b82f6;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: pulse-ring 2s infinite;
+  pointer-events: none;
+}
+
 .custom-pin span {
-  transform: rotate(45deg);
-  font-size: 18px;
+  font-size: 24px;
   line-height: 1;
+}
+
+.custom-pin:hover {
+  transform: scale(1.15) translateY(-5px);
+  border-color: #3b82f6;
+  z-index: 1000 !important;
+}
+
+/* Custom Zoom Styles */
+.custom-zoom-control {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: blur(12px) !important;
 }

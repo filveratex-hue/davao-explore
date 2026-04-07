@@ -32,12 +32,41 @@ const getCategoryIcon = (category?: string) => {
 
   return L.divIcon({
     className: 'custom-div-icon',
-    html: `<div class="custom-pin shadow-xl"><span>${emoji}</span></div>`,
-    iconSize: [36, 36],
-    iconAnchor: [18, 36],
-    popupAnchor: [0, -36]
+    html: `
+      <div class="custom-pin-container">
+        <div class="custom-pin">
+          <span>${emoji}</span>
+        </div>
+      </div>
+    `,
+    iconSize: [44, 54],
+    iconAnchor: [22, 54],
+    popupAnchor: [0, -54]
   });
 };
+
+// --- 🔍 CUSTOM ZOOM CONTROLS ---
+function ZoomControls() {
+  const map = useMap();
+  return (
+    <div className="absolute top-1/2 -translate-y-1/2 right-3 md:right-4 z-[1000] flex flex-col gap-2">
+      <button 
+        onClick={() => map.zoomIn()}
+        className="w-8 h-8 md:w-10 md:h-10 bg-white/90 backdrop-blur-md rounded-lg md:rounded-xl shadow-lg flex items-center justify-center text-lg md:text-xl font-bold hover:bg-white active:scale-90 transition-all text-gray-900 border border-white/50"
+        title="Zoom In"
+      >
+        +
+      </button>
+      <button 
+        onClick={() => map.zoomOut()}
+        className="w-8 h-8 md:w-10 md:h-10 bg-white/90 backdrop-blur-md rounded-lg md:rounded-xl shadow-lg flex items-center justify-center text-lg md:text-xl font-bold hover:bg-white active:scale-90 transition-all text-gray-900 border border-white/50"
+        title="Zoom Out"
+      >
+        −
+      </button>
+    </div>
+  );
+}
 
 // --- 🧭 LOCATION BUTTON COMPONENT ---
 function FindMeButton({ setUserPos }: { setUserPos: (pos: [number, number]) => void }) {
@@ -74,7 +103,9 @@ function MarkerLogic({ place }: { place: Place }) {
       icon={getCategoryIcon(place.category)}
       eventHandlers={{
         click: () => {
-          map.flyTo([(place.latitude || 0) + 0.005, place.longitude || 0], 14, {
+          // Push the marker down in the frame so the popup is fully visible above it
+          const latOffset = window.innerWidth < 768 ? 0.008 : 0.005;
+          map.flyTo([(place.latitude || 0) + latOffset, place.longitude || 0], 14, {
             animate: true,
             duration: 1.2
           });
@@ -82,8 +113,8 @@ function MarkerLogic({ place }: { place: Place }) {
       }}
     >
       <Popup className="custom-popup" closeButton={false}>
-        <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden w-56 md:w-64 border-4 border-white transform transition-all hover:scale-105">
-          <div className="h-20 md:h-24 w-full bg-gray-100 relative">
+        <div className="bg-white rounded-2xl md:rounded-[2rem] shadow-2xl overflow-hidden w-[220px] md:w-64 border-[3px] md:border-4 border-white transform transition-all hover:scale-105">
+          <div className="h-16 md:h-24 w-full bg-gray-100 relative">
             {place.cover_image_url ? (
               <Image src={place.cover_image_url} alt={place.name} className="object-cover" fill sizes="256px" />
             ) : (
@@ -95,16 +126,25 @@ function MarkerLogic({ place }: { place: Place }) {
           </div>
           
           {/* Info Section */}
-          <div className="p-3 md:p-4 flex flex-col items-center text-center bg-white">
-            <h3 className="font-black text-base md:text-lg uppercase italic text-gray-900 leading-tight mb-1 truncate w-full">{place.name}</h3>
-            <p className="text-[9px] md:text-[10px] text-gray-500 font-bold mb-3 md:mb-4 line-clamp-1">{place.description}</p>
+          <div className="p-2 md:p-4 flex flex-col items-center text-center bg-white">
+            <h3 className="font-black text-sm md:text-lg uppercase italic text-gray-900 leading-tight mb-0.5 truncate w-full">{place.name}</h3>
+            <p className="text-[8px] md:text-[10px] text-gray-500 font-bold mb-2 md:mb-4 line-clamp-1">{place.description}</p>
             
             <Link 
               href={`/place/${place.id}`}
-              className="w-full bg-blue-600 text-white text-[10px] font-black px-4 py-3 rounded-xl uppercase tracking-widest hover:bg-blue-500 active:scale-95 transition-all shadow-md text-center block"
+              className="w-full bg-blue-600 text-white text-[9px] md:text-[10px] font-black px-4 py-2.5 md:py-3 rounded-xl uppercase tracking-widest hover:bg-blue-500 active:scale-95 transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] text-center block mb-1.5"
             >
               Explore Spot →
             </Link>
+
+            <a 
+              href={`https://www.google.com/maps/dir/?api=1&destination=${place.latitude},${place.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-white text-gray-900 text-[9px] md:text-[10px] font-black px-4 py-2.5 md:py-3 rounded-xl uppercase tracking-widest border-2 border-gray-100 hover:bg-gray-50 active:scale-95 transition-all shadow-sm text-center block"
+            >
+              Navigate 🚗
+            </a>
           </div>
         </div>
       </Popup>
@@ -122,6 +162,7 @@ export default function MainMap({ places }: { places: Place[] }) {
         center={davaoCenter} 
         zoom={11} 
         scrollWheelZoom={false} 
+        zoomControl={false}
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
@@ -145,14 +186,25 @@ export default function MainMap({ places }: { places: Place[] }) {
         ))}
 
         <FindMeButton setUserPos={setUserPos} />
+        <ZoomControls />
       </MapContainer>
       
       {/* Floating Info Badge — visible on all screens now */}
-      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-[1000] bg-white/90 backdrop-blur-md px-4 md:px-5 py-2 md:py-3 rounded-xl md:rounded-2xl shadow-xl border border-gray-100">
-        <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-gray-900 flex items-center gap-2 md:gap-3">
-          <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-          {places.length} Active Spots
-        </p>
+      <div className="absolute top-2.5 left-2.5 md:top-6 md:left-6 z-[1000]">
+        <div className="bg-black/90 backdrop-blur-xl px-2.5 md:px-5 py-1 md:py-3.5 rounded-lg md:rounded-2xl shadow-2xl border border-white/10 flex items-center gap-2 md:gap-3">
+          <div className="relative">
+            <div className="w-1.5 h-1.5 md:w-2.5 md:h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
+            <div className="absolute inset-0 w-1.5 h-1.5 md:w-2.5 md:h-2.5 bg-green-500 rounded-full animate-ping opacity-75" />
+          </div>
+          <div className="flex flex-col">
+            <p className="text-[8px] md:text-[11px] font-black uppercase tracking-[0.1em] md:tracking-[0.15em] text-white leading-tight">
+              Davao Satellite
+            </p>
+            <p className="text-[6px] md:text-[8px] font-bold uppercase tracking-widest text-gray-400 mt-0.5">
+              Live • {places.length} Spots
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
