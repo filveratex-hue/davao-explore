@@ -1,0 +1,31 @@
+﻿Γû▓ Next.js 16.2.1 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 8.0s
+  Running TypeScript ...
+node.exe : Failed to type check.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
+    + CategoryInfo          : NotSpecified: (Failed to type check. 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+./components/MobileTabBar.tsx:90:29
+Type error: Expected 0 arguments, but got 1.
+
+  [90m88 |[0m               >
+  [90m89 |[0m                 <div className=[32m"w-14 h-14 
+rounded-2xl bg-blue-600 text-white flex items-ce...[0m
+[31m[1m>[0m [90m90 |[0m                   
+{tab.icon([36mfalse[0m)}
+  [90m   |[0m                             [31m[1m^[0m
+  [90m91 |[0m                 </div>
+  [90m92 |[0m                 <span className=[32m"text-[9px] 
+font-bold text-blue-600 mt-1 uppercase trackin...[0m
+  [90m93 |[0m                   {tab.label}
+Next.js build worker exited with code: 1 and signal: null

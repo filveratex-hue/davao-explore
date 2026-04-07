@@ -16,21 +16,26 @@ export default function PlaceFeed({ initialPlaces }: { initialPlaces: Place[] })
 
   const categories = ['All', 'Cafe', 'Camping', 'Viewpoint', 'Restaurant', 'Resort', '24 Hours', 'Sedan-friendly'];
 
-  // OFFLINE CACHE LOGIC
+  // OFFLINE CACHE + SYNC LOGIC
   useEffect(() => {
+    // If we have initial places from server, use them and update cache
     if (initialPlaces && initialPlaces.length > 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPlacesList(initialPlaces);
       try {
-        localStorage.setItem('catigan_offline_feed', JSON.stringify(initialPlaces));
+        localStorage.setItem('davao_offline_feed', JSON.stringify(initialPlaces));
       } catch (e) {
         console.warn("Storage quota exceeded");
       }
-    } else {
-      const cached = localStorage.getItem('catigan_offline_feed');
+    } 
+    // Otherwise, if we have no initial places, try loading from cache
+    else {
+      const cached = localStorage.getItem('davao_offline_feed');
       if (cached) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setPlacesList(JSON.parse(cached));
+        try {
+          setPlacesList(JSON.parse(cached));
+        } catch (e) {
+          console.error("Failed to parse cached feed:", e);
+        }
       }
     }
   }, [initialPlaces]);

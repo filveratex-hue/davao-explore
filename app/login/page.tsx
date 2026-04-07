@@ -5,7 +5,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-extrabold text-gray-900">Catigan Explore</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900">DAVAO Explore</h1>
         <p className="text-gray-500 mt-2">Sign in to add places and earn points.</p>
       </div>
       

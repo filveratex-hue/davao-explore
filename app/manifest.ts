@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Catigan Explore',
-    short_name: 'Davao Explore',
-    description: 'Uncover the finest hidden gems in the mountains of Catigan and beyond.',
+    name: 'Davao Explore',
+    short_name: 'DAVAO Explore',
+    description: 'Uncover the finest hidden gems in the mountains of Davao and beyond.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

@@ -14,8 +14,8 @@ function RoutingMachine({ waypoints, userPos, isFollowing }: { waypoints: Place[
   useEffect(() => {
     if (!map || !waypoints || waypoints.length < 1 || !userPos) return;
 
-    // 🚀 Access Routing via any cast to bypass missing type defs
-    const routingControl = (L as any).Routing.control({
+    // @ts-expect-error - leaflet-routing-machine extends L but official types are missing
+    const routingControl = L.Routing.control({
       waypoints: [
         L.latLng(userPos[0], userPos[1]), 
         ...waypoints.map((w: Place) => L.latLng(w.latitude || 0, w.longitude || 0))

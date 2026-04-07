@@ -6,7 +6,7 @@ import { Metadata } from 'next';
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: 'Explore Map | Catigan Explore',
+  title: 'Explore Map | Davao Explore',
   description: 'Discover all the hidden gems of Davao on an interactive map.',
 };
 

@@ -7,7 +7,7 @@ import { Place } from '../types';
 export default function TripBottomBar({ place }: { place: Place }) {
   const { tripIds, addToTrip, removeFromTrip } = useTrip();
 
-  const isAdded = tripIds.some((id: string) => String(id) === String(place.id));
+  const isAdded = tripIds.includes(place.id);
 
   return (
     <div 

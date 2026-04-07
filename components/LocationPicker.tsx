@@ -27,7 +27,7 @@ export default function LocationPicker({
 }: { 
   onLocationSelect: (lat: string, lng: string) => void 
 }) {
-  // We center the map roughly over Davao/Catigan to start
+  // We center the map roughly over Davao center to start
   const defaultCenter: [number, number] = [7.0215, 125.4852];
   const [position, setPosition] = useState<[number, number] | null>(null);
 

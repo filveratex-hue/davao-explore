@@ -27,12 +27,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Catigan Explore",
-  description: "Discover the best spots in upland Davao.",
+  title: "Davao Explore",
+  description: "Discover the best spots in Davao and beyond.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Explore",
+    title: "Davao Explore",
   },
   formatDetection: {
     telephone: false,

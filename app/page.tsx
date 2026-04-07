@@ -33,7 +33,7 @@ export default async function Home() {
             Explore <span className="text-blue-600">Davao</span>
           </h1>
           <p className="max-w-md mx-auto text-gray-400 font-bold uppercase text-[9px] md:text-[10px] tracking-[0.3em] md:tracking-[0.4em] leading-relaxed">
-            Uncover the finest hidden gems in the mountains of Catigan and beyond.
+            Uncover the finest hidden gems in the mountains of Davao and beyond.
           </p>
         </div>
       </header>

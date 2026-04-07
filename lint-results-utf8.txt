@@ -1,0 +1,193 @@
+﻿
+> catigan-explore@0.1.0 lint
+> eslint
+
+
+C:\Users\Veratex\Desktop\catigan-explore\app\add-spot\page.tsx
+   26:10  warning  'userId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  122:19  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\app\admin\page.tsx
+   12:20  warning  'SpotFormData' is defined but never used  @typescript-eslint/no-unused-vars
+   28:54  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   29:54  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   30:52  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:52  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   33:54  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  129:44  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:42  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:29  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  435:58  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\app\itinerary\page.tsx
+  20:20  warning  'trip' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  22:38  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+  40:29  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Veratex\Desktop\catigan-explore\app\itinerary\page.tsx:40:29
+  38 |
+  39 |   useEffect(() => {
+> 40 |     if (tripIds.length > 0) fetchTripSpots();
+     |                             ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  41 |     else { setSpots([]); setLoading(false); }
+  42 |   }, [tripIds]);
+  43 |  react-hooks/set-state-in-effect
+  42:6   warning  React Hook useEffect has a missing dependency: 'fetchTripSpots'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/exhaustive-deps
+
+C:\Users\Veratex\Desktop\catigan-explore\app\login\page.tsx
+  16:12  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\Veratex\Desktop\catigan-explore\app\profile\page.tsx
+  13:42  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  14:42  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  15:44  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-explicit-any
+  38:5   error    Error: Cannot access variable before it is declared
+
+`fetchUserData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\Veratex\Desktop\catigan-explore\app\profile\page.tsx:38:5
+  36 |     });
+  37 |
+> 38 |     fetchUserData();
+     |     ^^^^^^^^^^^^^ `fetchUserData` accessed before it is declared
+  39 |
+  40 |     return () => subscription.unsubscribe();
+  41 |   }, [router, showToast]);
+
+C:\Users\Veratex\Desktop\catigan-explore\app\profile\page.tsx:43:3
+  41 |   }, [router, showToast]);
+  42 |
+> 43 |   const fetchUserData = async () => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 44 |     const { data: { session } } = await supabase.auth.getSession();
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 45 |     if (!session) {
+     ΓÇª
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 80 |     setLoading(false);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 81 |   };
+     | ^^^^^ `fetchUserData` is declared here
+  82 |
+  83 |   // --- GAMIFICATION LOGIC ---
+  84 |   const getRank = (pts: number) => {  react-hooks/immutability
+  41:6   warning  React Hook useEffect has a missing dependency: 'fetchUserData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              react-hooks/exhaustive-deps
+
+C:\Users\Veratex\Desktop\catigan-explore\app\signup\page.tsx
+  15:9  warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Veratex\Desktop\catigan-explore\components\DistanceBadge.tsx
+  24:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Veratex\Desktop\catigan-explore\components\DistanceBadge.tsx:24:7
+  22 |   useEffect(() => {
+  23 |     if (!placeLat || !placeLng) {
+> 24 |       setStatus('unsupported');
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  25 |       return;
+  26 |     }
+  27 |  react-hooks/set-state-in-effect
+  40:10  warning  'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+
+C:\Users\Veratex\Desktop\catigan-explore\components\ImageUpload.tsx
+  77:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\components\ItineraryMap.tsx
+  25:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\components\ItineraryTray.tsx
+  28:35  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\components\LiveNavigator.tsx
+  10:62  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  17:5   error  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  21:30  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  49:59  error  Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\components\MainMap.tsx
+  50:42  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  99:55  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\components\MobileTabBar.tsx
+  33:12  warning  '_active' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Veratex\Desktop\catigan-explore\components\PlaceFeed.tsx
+   22:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Veratex\Desktop\catigan-explore\components\PlaceFeed.tsx:22:7
+  20 |   useEffect(() => {
+  21 |     if (initialPlaces && initialPlaces.length > 0) {
+> 22 |       setPlacesList(initialPlaces);
+     |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  23 |       try {
+  24 |         localStorage.setItem('catigan_offline_feed', JSON.stringify(initialPlaces));
+  25 |       } catch (e) {} // Ignore quota issues safely  react-hooks/set-state-in-effect
+   25:16  warning  'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  159:25  warning  Expected an assignment or function call and instead saw an expression                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-expressions
+  269:25  warning  Expected an assignment or function call and instead saw an expression                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-expressions
+
+C:\Users\Veratex\Desktop\catigan-explore\components\ReviewsSection.tsx
+   8:42  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+  36:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Veratex\Desktop\catigan-explore\components\ReviewsSection.tsx:36:5
+  34 |
+  35 |   useEffect(() => {
+> 36 |     fetchReviews();
+     |     ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  37 |     supabase.auth.getSession().then(({ data: { session } }) => {
+  38 |       setUserId(session?.user?.id || null);
+  39 |     });  react-hooks/set-state-in-effect
+  40:6   warning  React Hook useEffect has a missing dependency: 'fetchReviews'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/exhaustive-deps
+
+C:\Users\Veratex\Desktop\catigan-explore\components\SpotForm.tsx
+  26:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\components\TripBottomBar.tsx
+  6:63  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  9:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Veratex\Desktop\catigan-explore\context\TripContext.tsx
+  27:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Veratex\Desktop\catigan-explore\context\TripContext.tsx:27:9
+  25 |       try {
+  26 |         const parsedData = JSON.parse(saved);
+> 27 |         setTripData({ items: parsedData, ids: parsedData.map((p: Place) => p.id) });
+     |         ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  28 |       } catch (e) {
+  29 |         console.error("Failed to load trip data:", e);
+  30 |       }  react-hooks/set-state-in-effect
+
+Γ£û 46 problems (34 errors, 12 warnings)
+

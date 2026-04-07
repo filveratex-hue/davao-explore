@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!place) return { title: 'Not Found' };
   
   return {
-    title: `${place.name} | Catigan Explore`,
+    title: `${place.name} | Davao Explore`,
     description: place.description?.slice(0, 150) + '...',
     openGraph: {
       images: place.cover_image_url ? [place.cover_image_url] : [],

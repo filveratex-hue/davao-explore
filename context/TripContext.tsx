@@ -20,7 +20,7 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
 
   // Load trip from local storage so it persists on refresh
   useEffect(() => {
-    const saved = localStorage.getItem('catigan_trip_data');
+    const saved = localStorage.getItem('davao_trip_data');
     if (saved) {
       try {
         const parsedData = JSON.parse(saved);
@@ -34,7 +34,7 @@ export function TripProvider({ children }: { children: React.ReactNode }) {
 
   // Helper to save to local storage
   const saveToLocal = (data: Place[]) => {
-    localStorage.setItem('catigan_trip_data', JSON.stringify(data));
+    localStorage.setItem('davao_trip_data', JSON.stringify(data));
   };
 
   const addToTrip = (place: Place) => {

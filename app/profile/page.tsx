@@ -265,7 +265,7 @@ export default function ProfilePage() {
             End Session
           </button>
           
-          <p className="text-gray-300 text-[9px] font-black uppercase tracking-widest">Catigan Explore © 2026</p>
+          <p className="text-gray-300 text-[9px] font-black uppercase tracking-widest">Davao Explore © 2026</p>
         </div>
 
       </div>

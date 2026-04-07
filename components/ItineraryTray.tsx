@@ -25,7 +25,7 @@ export default function ItineraryTray() {
       return;
     }
 
-    const header = `🚀 *MY CATIGAN EXPLORE ITINERARY* \n\n`;
+    const header = `🚀 *MY DAVAO EXPLORE ITINERARY* \n\n`;
     const body = trip.map((place: Place, index: number) => (
       `${index + 1}. ${place.name} ${getEmoji(place.category || '')}`
     )).join('\n');
