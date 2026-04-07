@@ -8,13 +8,7 @@ import { useState } from 'react';
 import { Place } from '../types';
 import Image from 'next/image';
 
-// --- CUSTOM MARKERS ---
-const customIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
+// --- CATEGORY ICON MAPPING ---
 
 const userIcon = new L.Icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -22,6 +16,28 @@ const userIcon = new L.Icon({
   iconSize: [25, 41],
   iconAnchor: [12, 41],
 });
+
+// --- CATEGORY ICON MAPPING ---
+const getCategoryIcon = (category?: string) => {
+  const emojiMap: Record<string, string> = {
+    'Cafe': '☕',
+    'Viewpoint': '🔭',
+    'Camping': '⛺',
+    'Resort': '🏖️',
+    'Restaurant': '🍴',
+    'Trail': '🥾'
+  };
+
+  const emoji = category && emojiMap[category] ? emojiMap[category] : '📍';
+
+  return L.divIcon({
+    className: 'custom-div-icon',
+    html: `<div class="custom-pin shadow-xl"><span>${emoji}</span></div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36]
+  });
+};
 
 // --- 🧭 LOCATION BUTTON COMPONENT ---
 function FindMeButton({ setUserPos }: { setUserPos: (pos: [number, number]) => void }) {
@@ -55,7 +71,7 @@ function MarkerLogic({ place }: { place: Place }) {
   return (
     <Marker 
       position={[place.latitude || 0, place.longitude || 0]} 
-      icon={customIcon}
+      icon={getCategoryIcon(place.category)}
       eventHandlers={{
         click: () => {
           map.flyTo([(place.latitude || 0) + 0.005, place.longitude || 0], 14, {
