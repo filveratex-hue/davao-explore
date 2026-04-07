@@ -18,11 +18,16 @@ export default function PlaceFeed({ initialPlaces }: { initialPlaces: Place[] })
 
   // OFFLINE CACHE + SYNC LOGIC
   useEffect(() => {
-    // If we have initial places from server, use them and update cache
-    if (initialPlaces && initialPlaces.length > 0) {
+    // If we have initial places from server (even an empty list), sync it
+    if (Array.isArray(initialPlaces)) {
       setPlacesList(initialPlaces);
       try {
-        localStorage.setItem('davao_offline_feed', JSON.stringify(initialPlaces));
+        if (initialPlaces.length > 0) {
+          localStorage.setItem('davao_offline_feed', JSON.stringify(initialPlaces));
+        } else {
+          // If the list is empty, we should still reflect that
+          localStorage.removeItem('davao_offline_feed');
+        }
       } catch (e) {
         console.warn("Storage quota exceeded");
       }

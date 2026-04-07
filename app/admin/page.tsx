@@ -12,6 +12,7 @@ import { compressAndUploadImage } from '../../utils/uploadService';
 import SpotForm, { SpotFormData } from '../../components/SpotForm';
 import dynamicImport from 'next/dynamic';
 import { Place, Profile, PlaceImage, ReviewWithJoin, PlaceImageWithJoin } from '../../types';
+import { revalidateData } from '../actions';
 import Image from 'next/image';
 
 const LocationPicker = dynamicImport(() => import('../../components/LocationPicker'), {
@@ -130,39 +131,68 @@ export default function AdminDashboard() {
 
   const handleApprovePlace = async (place: Place) => {
     const { error } = await supabase.from('places').update({ status: 'approved' }).eq('id', place.id);
-    if (!error) { await awardPoints(place.user_id as string, 10); showToast("Spot approved!", "success"); fetchData(); } 
+    if (!error) { 
+      await awardPoints(place.user_id as string, 10); 
+      await revalidateData();
+      showToast("Spot approved!", "success"); 
+      fetchData(); 
+    } 
     else showToast(error.message, "error");
   };
 
   const handleApproveImage = async (img: PlaceImageWithJoin) => {
     const { error } = await supabase.from('place_images').update({ status: 'approved' }).eq('id', img.id);
-    if (!error) { await awardPoints(img.user_id as string, 5); showToast("Photo approved!", "success"); fetchData(); } 
+    if (!error) { 
+      await awardPoints(img.user_id as string, 5); 
+      await revalidateData();
+      showToast("Photo approved!", "success"); 
+      fetchData(); 
+    } 
     else showToast(error.message, "error");
   };
 
   const handleUpdatePlace = async (id: string) => {
     const { error } = await supabase.from('places').update(form).eq('id', id);
-    if (!error) { setEditingId(null); showToast("Spot details updated.", "success"); fetchData(); } 
+    if (!error) { 
+      setEditingId(null); 
+      await revalidateData();
+      showToast("Spot details updated.", "success"); 
+      fetchData(); 
+    } 
     else showToast(error.message, "error");
   };
 
   const handleAddPlace = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     const { error } = await supabase.from('places').insert([{ ...form, status: 'approved', user_id: session?.user?.id }]);
-    if (!error) { setIsAdding(false); resetForm(); showToast("New spot published live!", "success"); fetchData(); } 
+    if (!error) { 
+      setIsAdding(false); 
+      resetForm(); 
+      await revalidateData();
+      showToast("New spot published live!", "success"); 
+      fetchData(); 
+    } 
     else showToast("Error adding spot: " + error.message, "error");
   };
 
   const handleDelete = async (table: string, id: string) => {
     if (!window.confirm("Are you sure? This action is permanent.")) return;
     const { error } = await supabase.from(table).delete().eq('id', id);
-    if (!error) { showToast("Deleted permanently.", "info"); fetchData(); } 
+    if (!error) { 
+      await revalidateData();
+      showToast("Deleted permanently.", "info"); 
+      fetchData(); 
+    } 
     else showToast(error.message, "error");
   };
 
   const handleSetCover = async (placeId: string, imageUrl: string) => {
     const { error } = await supabase.from('places').update({ cover_image_url: imageUrl }).eq('id', placeId);
-    if (!error) { showToast("New cover image set!", "success"); fetchData(); } 
+    if (!error) { 
+      await revalidateData();
+      showToast("New cover image set!", "success"); 
+      fetchData(); 
+    } 
     else showToast("Database Error: " + error.message, "error");
   };
 
