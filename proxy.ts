@@ -30,7 +30,12 @@ export function proxy(request: NextRequest) {
   if (isProtectedPath) {
     // Check for Supabase session cookie
     // Note: The actual cookie name depends on project ID, but we check for general existence first
-    const hasSession = request.cookies.getAll().some(cookie => cookie.name.includes('auth-token'));
+    const cookies = request.cookies.getAll();
+    const hasSession = cookies.some(cookie => 
+      cookie.name.includes('auth-token') || 
+      cookie.name.includes('supabase.auth.token') ||
+      cookie.name.includes('-auth-token')
+    );
     
     if (!hasSession) {
       const url = request.nextUrl.clone();
